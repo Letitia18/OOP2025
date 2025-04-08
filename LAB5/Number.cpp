@@ -1,139 +1,148 @@
+#include <iostream>
+#include <cstring>
 #include "Number.h"
-#include <cmath>
-#include <algorithm>
+using namespace std;
 
-static int charToInt(char c) {
-    return (c >= '0' && c <= '9') ? c - '0' : toupper(c) - 'A' + 10;
+Number::Number(const char* value, int base)
+{
+    strcpy(numar, value);
+    baza = base;
+    lungime = strlen(value);
 }
 
-static char intToChar(int x) {
-    return (x < 10) ? x + '0' : x - 10 + 'A';
+void Number::Print() {
+    cout << "Scrierea in baza " << baza << " a numarului este " << numar << endl;
 }
 
-Number::Number(const char* val, int base) : value(val), base(base) {}
-Number::Number(int decimal) : base(10) { FromDecimal(decimal, 10); }
+void Number::Print1() {
+	cout << "Numarul este: " << numar << endl;
+}
 
-Number::Number(const Number& other) : value(other.value), base(other.base) {}
-Number::Number(Number&& other) noexcept : value(std::move(other.value)), base(other.base) {}
+int Number::GetBase10Value() const 
+{
+    int rez = 0, putere = 1;
+    int i;
 
-Number::~Number() {}
+    for (i = lungime - 1; i >= 0; i--)
+    {
+        if (numar[i] >= '0' && numar[i] <= '9') { 
+            rez = rez + (numar[i] - '0') * putere; 
 
-Number& Number::operator=(const Number& other) {
-    if (this != &other) {
-        value = other.value;
-        base = other.base;
+        }
+        else 
+        {
+            rez = rez + (numar[i] - 'A' + 10) * putere;
+        }
+        putere = putere * baza;
     }
-    return *this;
-}
-
-Number& Number::operator=(Number&& other) noexcept {
-    if (this != &other) {
-        value = std::move(other.value);
-        base = other.base;
-    }
-    return *this;
-}
-
-Number& Number::operator=(int val) {
-    FromDecimal(val, base);
-    return *this;
-}
-
-Number& Number::operator=(const char* val) {
-    value = val;
-    return *this;
-}
-
-int Number::ToDecimal() const {
-    int result = 0;
-    for (char c : value) {
-        result = result * base + charToInt(c);
-    }
-    return result;
-}
-
-void Number::FromDecimal(int decimal, int newBase) {
-    if (decimal == 0) {
-        value = "0";
-        base = newBase;
-        return;
-    }
-
-    std::string result;
-    while (decimal > 0) {
-        result.push_back(intToChar(decimal % newBase));
-        decimal /= newBase;
-    }
-    std::reverse(result.begin(), result.end());
-    value = result;
-    base = newBase;
+    return rez;
 }
 
 void Number::SwitchBase(int newBase) {
-    int decimal = ToDecimal();
-    FromDecimal(decimal, newBase);
+
+    int val = GetBase10Value();
+    int rest = 0, contor = 0;
+    char rez[100];
+
+    while (val) {
+        rest = val % newBase;
+        val = val / newBase;  
+        if (rest <= 9) rez[contor] = (char)rest + '0';
+        else rez[contor] = (char)rest + 'A'; 
+        contor++;
+    }
+    rez[contor] = '\0'; 
+    _strrev(rez);
+    strcpy(numar, rez);
+    baza = newBase;
 }
 
-void Number::Print() const {
-    std::cout << value << " (base " << base << ")\n";
+int Number::GetDigitsCount() const{
+    return lungime;
 }
 
-int Number::GetDigitsCount() const {
-    return value.length();
+int Number::GetBase() const{
+    return baza;
 }
 
-int Number::GetBase() const {
-    return base;
+bool Number::operator<(Number& num) {
+    return GetBase10Value() < num.GetBase10Value();
 }
 
-char Number::operator[](int index) const {
-    return (index >= 0 && index < value.size()) ? value[index] : '?';
+bool Number::operator>(Number& num) {
+    return GetBase10Value() > num.GetBase10Value();
 }
 
-Number operator+(const Number& a, const Number& b) {
-    int val = a.ToDecimal() + b.ToDecimal();
-    int newBase = std::max(a.base, b.base);
-    Number result("0", newBase);
-    result.FromDecimal(val, newBase);
-    return result;
+bool Number::operator<=(Number& num) {
+    return GetBase10Value() <= num.GetBase10Value();
 }
 
-Number operator-(const Number& a, const Number& b) {
-    int val = a.ToDecimal() - b.ToDecimal();
-    int newBase = std::max(a.base, b.base);
-    Number result("0", newBase);
-    result.FromDecimal(val, newBase);
-    return result;
+bool Number::operator>=(Number& num) {
+    return GetBase10Value() >= num.GetBase10Value();
 }
 
-bool operator>(const Number& a, const Number& b) {
-    return a.ToDecimal() > b.ToDecimal();
-}
-bool operator<(const Number& a, const Number& b) {
-    return a.ToDecimal() < b.ToDecimal();
-}
-bool operator>=(const Number& a, const Number& b) {
-    return a.ToDecimal() >= b.ToDecimal();
-}
-bool operator<=(const Number& a, const Number& b) {
-    return a.ToDecimal() <= b.ToDecimal();
-}
-bool operator==(const Number& a, const Number& b) {
-    return a.ToDecimal() == b.ToDecimal();
-}
-bool operator!=(const Number& a, const Number& b) {
-    return a.ToDecimal() != b.ToDecimal();
+bool Number::operator==(Number& num) {
+    return GetBase10Value() == num.GetBase10Value();
 }
 
-Number& Number::operator+=(const Number& other) {
-    *this = *this + other;
+Number operator+(const Number& num1, const Number& num2) {
+    int suma = num1.GetBase10Value() + num2.GetBase10Value();
+    char rezultat[100];
+    int contor = 0, bazamaxima;
+
+    if (num1.GetBase() > num2.GetBase()) bazamaxima = num1.GetBase();
+    else bazamaxima = num2.GetBase();
+
+    while (suma) {
+        int rest = suma % bazamaxima;
+        suma = suma / bazamaxima;
+        if (rest < 9) rezultat[contor] = (char)rest + '0';
+        else rezultat[contor] = (char)rest + 'A';
+        contor++;
+    }
+    rezultat[contor] = '\0';
+    _strrev(rezultat);
+    return Number(rezultat, bazamaxima);
+}
+
+Number operator-(const Number& num1, const Number& num2){
+    int dif = num1.GetBase10Value() - num2.GetBase10Value();
+    char rezultat[100];
+    int contor = 0, bazamaxima = 0;
+
+    if (num1.GetBase() > num2.GetBase()) bazamaxima = num1.GetBase();
+    else bazamaxima = num2.GetBase();
+
+    while (dif) {
+        int rest = dif % bazamaxima;
+        dif = dif / bazamaxima;
+        if (rest < 9) rezultat[contor] = (char)rest + '0';
+        else rezultat[contor] = (char)rest + 'A';
+        contor++;
+    }
+    rezultat[contor] = '\0';
+    _strrev(rezultat);
+    return Number(rezultat, bazamaxima);
+}
+
+Number& Number::operator--() 
+{
+    strcpy(numar, numar + 1);
+    lungime = strlen(numar); 
+    return *this; 
+}
+ 
+Number Number::operator--(int) 
+{
+    numar[strlen(numar) - 1] = '\0';
+    lungime = strlen(numar); 
     return *this;
 }
 
-Number& Number::operator--() {
-    if (value.length() > 0)
-        value.erase(0, 1);
-    return *this;
+
+Number::~Number()
+{
+    numar[0] = NULL;
 }
 
 Number Number::operator--(int) {
