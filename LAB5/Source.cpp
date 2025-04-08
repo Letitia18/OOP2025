@@ -1,39 +1,50 @@
+#include <iostream>
 #include "Number.h"
+using namespace std;
 
 int main() {
-    Number n1("10110010", 2);
-    Number n2("734", 8);
-    Number n3("FF", 16);
+	Number numar1("10001", 2);
+	Number numar2("162", 10);
+	Number numar3("16", 7);
 
-    printf("n1 has %d digits and it is written in base %d\n", n1.GetDigitsCount(), n1.GetBase());
-    for (int tr = 0; tr < n1.GetDigitsCount(); tr++) {
-        printf("n1[%d]=%c\n", tr, n1[tr]);
-    }
-    n1.Print();
-    n2.Print();
+	cout << "Exemplu 1" << endl;
+	numar1.Print();
+	numar1.SwitchBase(16);
+	numar1.Print();
+	cout << endl;
 
-    n1 = (n2 + n3 - n1) + n1;
-    n1.SwitchBase(2);
-    n1.Print();
+	cout << "Exemplu 2" << endl;
+	numar2.Print();
+	numar2.SwitchBase(12);
+	numar2.Print();
+	cout << endl;
 
-    if (n1 > n2)
-        printf("n1 is bigger than n2\n");
-    else
-        printf("n2 is bigger than n1\n");
+	cout << endl<<"Exemplu 3" << endl;
+	numar3.Print();
+	numar3.SwitchBase(5);
+	numar3.Print();
+	cout << endl;
 
-    Number n4 = 12345;
-    n1 = 255;
-    n4 += n1;
-    n4.Print();
+	Number numar4("100", 2);
+	Number numar5("10", 2);
 
-    n4 = "13579";
-    n4.Print();
+	cout << "Exemplu -" << endl;
+	Number diferenta = numar4 - numar5;
+	diferenta.Print1();
 
-    --n4;
-    n4.Print();
+	cout << "Exemplu +" << endl;
+	Number suma = numar5 + numar4;
+	suma.Print1();
 
-    n4--;
-    n4.Print();
+	cout << endl << "Exemplu --numar" << endl;
+	numar2--;
+	numar2.Print1();
 
-    return 0;
+	cout << endl << "Exemplu numar--" << endl;
+	--numar2;
+	numar2.Print1();
+
+	cout << endl<<"Exemplu operator > sau <"<<endl;
+	if (numar4 > numar5) cout << numar4.GetBase10Value() << " este mai mare decat " << numar5.GetBase10Value() << endl;
+	else cout << numar5.GetBase10Value() << " este mai mare decat " << numar4.GetBase10Value() << endl;
 }
