@@ -1,45 +1,31 @@
-#pragma once
-#include <iostream>
-#include <string>
+﻿#pragma once
 
-class Number {
+class Number
+{
 private:
-    std::string value;
-    int base;
-
-    int ToDecimal() const;
-    void FromDecimal(int decimal, int newBase);
-
+	int baza, lungime;
+	char numar[100] = {};
 public:
-    Number(const char* value, int base);
-    Number(int decimal);
-    Number(const Number& other);
-    Number(Number&& other) noexcept;
-    ~Number();
+	Number(const char* value, int base); 
+	~Number(); 
 
-    Number& operator=(const Number& other);
-    Number& operator=(Number&& other) noexcept;
-    Number& operator=(int val);
-    Number& operator=(const char* val);
+	int GetBase10Value() const;
 
-    void SwitchBase(int newBase);
-    void Print() const;
-    int GetDigitsCount() const;
-    int GetBase() const;
+	bool operator < (Number& num); 
+	bool operator > (Number& num);
+	bool operator <= (Number& num);
+	bool operator >= (Number& num); 
+	bool operator == (Number& num);
+	
+	friend Number operator+ (const Number& num1, const Number& num2);
+	friend Number operator- (const Number& num1, const Number& num2);
 
-    char operator[](int index) const;
+	Number& operator--();
+	Number operator--(int);
 
-    friend Number operator+(const Number& a, const Number& b);
-    friend Number operator-(const Number& a, const Number& b);
-    friend bool operator>(const Number& a, const Number& b);
-    friend bool operator<(const Number& a, const Number& b);
-    friend bool operator>=(const Number& a, const Number& b);
-    friend bool operator<=(const Number& a, const Number& b);
-    friend bool operator==(const Number& a, const Number& b);
-    friend bool operator!=(const Number& a, const Number& b);
-
-    Number& operator+=(const Number& other);
-
-    Number& operator--();    // prefix
-    Number operator--(int);  // postfix
+	void SwitchBase(int newBase);
+	void Print();
+	void Print1();
+	int  GetDigitsCount() const;
+	int  GetBase() const; 
 };
