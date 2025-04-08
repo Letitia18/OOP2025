@@ -1,99 +1,170 @@
+﻿#include <iostream>
 #include "Sort.h"
-#include <iostream>
-#include <algorithm>
-#include <cstdlib>
-#include <ctime>
-#include <cstdarg>
-#include <sstream>
+#include <initializer_list> 
+#include <vector> 
+#include <cstdarg> 
+using namespace std;
 
-Sort::Sort(int numElements, int minValue, int maxValue) {
-    std::srand(std::time(nullptr));
-    for (int i = 0; i < numElements; ++i) {
-        elements.push_back(minValue + std::rand() % (maxValue - minValue + 1));
-    }
+void Sort::InsertSort(bool ascendent)
+{
+	for (int i = 1;i < nrElemente;i++)
+	{
+		int key = arr[i];
+		int j = i - 1;
+		if (ascendent)
+		{
+			while (j > 0 && arr[j] > key)
+			{
+				arr[j + 1] = arr[j];
+				j--;
+			}
+		}
+		else
+		{
+			while (j > 0 && arr[j] < key)
+			{
+				arr[j + 1] = arr[j];
+				j--;
+			}
+		}
+		arr[j + 1] = key;
+	}
 }
 
-Sort::Sort(std::initializer_list<int> initList) : elements(initList) {}
-
-Sort::Sort(const std::vector<int>& vec, int numElements) {
-    elements.assign(vec.begin(), vec.begin() + numElements);
+int partitioneaza_descrescator(int arr[], int p, int q) {
+	int x = arr[p];
+	int i = p + 1;
+	int j = q;
+	while (i <= j) {
+		while (arr[j] < x && i <= q) i++;
+		while (arr[j] < x && j >= p) j--;
+		if (i < j) swap(arr[i], arr[j]);
+	}
+	swap(arr[p], arr[j]);
+	return j;
 }
 
-Sort::Sort(const char* str) {
-    std::stringstream ss(str);
-    std::string item;
-    while (std::getline(ss, item, ',')) {
-        elements.push_back(std::stoi(item));
-    }
+int partitioneaza_crescator(int arr[], int p, int q) {
+	int x = arr[p];
+	int i = p + 1, j = 1;
+	while (i <= j) {
+		if (arr[i] <= x) i++;
+		else if (arr[j]>= x) j--;
+		else if (i < j && arr[i]>x && arr[j]<x) swap(arr[i], arr[j]);
+	}
+	arr[p] == arr[i - 1];
+	arr[i - 1] = x;
+	return i - 1;
 }
 
-Sort::Sort(int count, ...) {
-    va_list args;
-    va_start(args, count);
-    for (int i = 0; i < count; ++i) {
-        elements.push_back(va_arg(args, int));
-    }
-    va_end(args);
+void QuickSort_crescator(int arr[], int p, int q)
+{
+	if(p<q) {
+		int m = partitioneaza_crescator(arr, p, q);
+		QuickSort_crescator(arr, p, m - 1);
+		QuickSort_crescator(arr, m + 1, q);
+	}
 }
 
-void Sort::InsertSort(bool ascendent) {
-    for (size_t i = 1; i < elements.size(); ++i) {
-        int key = elements[i];
-        int j = i - 1;
-        while (j >= 0 && (ascendent ? elements[j] > key : elements[j] < key)) {
-            elements[j + 1] = elements[j];
-            --j;
-        }
-        elements[j + 1] = key;
-    }
+void QuickSort_descrescator(int arr[], int p, int q)
+{
+	if (p < q) {
+		int m = partitioneaza_descrescator(arr, p, q);
+		QuickSort_descrescator(arr, p, m - 1);
+		QuickSort_descrescator(arr, m + 1, q);
+	}
 }
 
-int partition(std::vector<int>& arr, int low, int high, bool ascendent) {
-    int pivot = arr[high];
-    int i = low - 1;
-    for (int j = low; j < high; ++j) {
-        if (ascendent ? arr[j] < pivot : arr[j] > pivot) {
-            ++i;
-            std::swap(arr[i], arr[j]);
-        }
-    }
-    std::swap(arr[i + 1], arr[high]);
-    return i + 1;
+void Sort::QuickSort(bool ascendent)
+{
+	if(ascendent==false)
+	QuickSort_descrescator(arr, 0, nrElemente - 1);
+	else QuickSort_crescator(arr, 0, nrElemente - 1);
 }
 
-void quickSort(std::vector<int>& arr, int low, int high, bool ascendent) {
-    if (low < high) {
-        int pi = partition(arr, low, high, ascendent);
-        quickSort(arr, low, pi - 1, ascendent);
-        quickSort(arr, pi + 1, high, ascendent);
-    }
+
+void Sort::BubbleSort(bool ascendent)
+{
+
+	for (int i = 0; i < nrElemente - 1; i++) {
+		for (int j = i; j < nrElemente; j++) {
+			if (ascendent == true && arr[i] > arr[j]) {
+				swap(arr[i], arr[j]);
+			}
+			else if (arr[i] > arr[j]) {
+				swap(arr[i], arr[j]);
+			}
+		}
+	}
+	ascendent = true;
 }
 
-void Sort::QuickSort(bool ascendent) {
-    quickSort(elements, 0, elements.size() - 1, ascendent);
+void Sort::Print()
+{
+	for (int i = 0; i < nrElemente;i++)
+		cout << arr[i] << " ";
 }
 
-void Sort::BubbleSort(bool ascendent) {
-    for (size_t i = 0; i < elements.size() - 1; ++i) {
-        for (size_t j = 0; j < elements.size() - i - 1; ++j) {
-            if (ascendent ? elements[j] > elements[j + 1] : elements[j] < elements[j + 1]) {
-                std::swap(elements[j], elements[j + 1]);
-            }
-        }
-    }
+int Sort::GetElementsCount()
+{
+	return nrElemente;
 }
 
-void Sort::Print() {
-    for (const int& el : elements) {
-        std::cout << el << " ";
-    }
-    std::cout << std::endl;
+int Sort::GetElementFromIndex(int index)
+{
+	return arr[index];
 }
 
-int Sort::GetElementsCount() {
-    return elements.size();
+Sort::Sort(int n, int mini, int maxi)
+{
+	int interval = maxi - mini;
+	nrElemente = n;
+	for (int i = 0; i < nrElemente; i++)
+		arr[i] = rand() % interval + mini;
 }
 
+
+Sort::Sort(initializer_list <int> valoare) {
+	int i = 0;
+	
+	for(int val:valoare)
+		arr[i++] = val; 
+	nrElemente = i;
+}
+
+Sort::Sort(int vector[], int n)
+{
+	nrElemente = n;
+	for (int i = 0; i < n; i++)
+		arr[i] = vector[i];
+}
+
+Sort::Sort(int n, ...) {
+	nrElemente = n;
+	va_list argument; 
+	va_start(argument, n);
+	for (int i = 0; i < n; i++)
+		arr[i]=va_arg(argument, int); 
+
+	va_end(argument); 
+}
+
+Sort::Sort(const char s[100]) {
+	nrElemente = 0;
+	int i = 0;
+	int numarCurent = 0;
+	while (s[i] != NULL) {
+		if(s[i] != ',')	numarCurent = numarCurent * 10 + s[i] - '0'; 
+		else {
+			arr[nrElemente] = numarCurent;
+			nrElemente++; 
+			numarCurent = 0;
+		}
+		i++;
+	}
+	arr[nrElemente] = numarCurent;
+	nrElemente++; 
+}
 int Sort::GetElementFromIndex(int index) {
     if (index >= 0 && index < elements.size()) {
         return elements[index];
